@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "299651529836",
+    "project_id": "game-iq-35a18",
+    "storage_bucket": "game-iq-35a18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299651529836:android:fb0bf40f627afcaeefec49",
+        "android_client_info": {
+          "package_name": "com.quiz_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299651529836-gpvde3vd9h9bqi7n7shfv9nlr2f3enua.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVCRl6__xtcLb0tFdGJetgRjl6QuwI-H8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299651529836-6ejrkg159s0ooi5dtc4ltg4dkv1afpje.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "299651529836-iamt28sb2ttqvsrljqbaji1j4oak265m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.brain-game"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
