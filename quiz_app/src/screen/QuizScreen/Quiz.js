@@ -6,28 +6,63 @@ import {
   View,
   Animated,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
+import firestore from '@react-native-firebase/firestore';
 import {COLORS, SIZES} from '../../contains';
+import {styles} from './styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import RenderProgressBar from '../../components/QuizComponents/RenderProgressBar';
+import RenderOptions from '../../components/QuizComponents/RenderOptions';
+import RenderNextButton from '../../components/QuizComponents/RenderNextButton';
+import ModalResult from '../../components/QuizComponents/ModalResult';
+import AppContext from '../../navigator/AppContext';
+import {data} from '../../assets/data/data';
+import {Image} from 'react-native';
+import Sound from 'react-native-sound';
 
-export default function Quiz() {
+const audio = {
+  success: require('../../assets/audio/success-sound.wav'),
+  error: require('../../assets/audio/error-sound.wav'),
+};
+
+export default function Quiz({route, navigation}) {
+  const {oldPoint, oldScore} = route.params;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const {user} = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
-  const [questions, setQuestions] = useState();
-  const [ques, setQues] = useState(0);
+  const [questions, setQuestions] = useState(data);
+  const [typeQuestion, setTypeQuestion] = useState();
+  const [indexQues, setIndexQues] = useState(0);
   const [option, setOption] = useState([]);
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
   const [correctOption, setCorrectOption] = useState(null);
+  const [score, setScore] = useState(0);
+  const [point, setPoint] = useState(0);
   const [isOptionsDisabled, setIsOptionsDisabled] = useState(false);
+  const [showNextButton, setShowNextButton] = useState(false);
+  const [showScoreModal, setShowScoreModal] = useState(false);
+
+  const [progress, setProgress] = useState(new Animated.Value(0));
+  const progressAnim = length => {
+    const progresss = progress.interpolate({
+      inputRange: [0, length - 1],
+      outputRange: ['0%', '100%'],
+    });
+    return progresss;
+  };
 
   const getQuiz = async () => {
-    const url = 'https://opentdb.com/api.php?amount=10&type=multiple';
-    const res = await fetch(url);
-    const data = await res.json();
-    setQuestions(data.results);
-    setOption(getAnswers(data.results[0]));
+    // const url = 'https://opentdb.com/api.php?amount=10';
+    // const res = await fetch(url);
+    // const data = await res.json();
+    setQuestions(data);
+    setOption(getAnswers(data[0]));
+    setTypeQuestion(data[0].type);
+    // console.log('type' + typeQuestion);
     setLoading(false);
-    console.log(data.results[0]);
+    // console.log(questions);
     // console.log(data.results[0].incorrect_answers);
   };
   const shuffleArray = array => {
@@ -40,201 +75,149 @@ export default function Quiz() {
     const optionss = [..._questionn.incorrect_answers];
     optionss.push(_questionn.correct_answer);
     shuffleArray(optionss);
-    console.log(optionss);
     return optionss;
   }
+  function handlePressDone() {
+    updateRank(user.uid);
+    setShowScoreModal(true);
+  }
   function handlePressNext() {
-    setQues(ques + 1);
-    setOption(getAnswers(questions[ques + 1]));
+    setIndexQues(indexQues + 1);
+    setOption(getAnswers(questions[indexQues + 1]));
+    setTypeQuestion(questions[indexQues + 1].type);
+
     setCurrentOptionSelected(null);
     setCorrectOption(null);
     setIsOptionsDisabled(false);
-  }
-  function handlePressPrev() {
-    setQues(ques - 1);
-    setOption(getAnswers(questions[ques - 1]));
-    setIsOptionsDisabled(false);
+    setShowNextButton(false);
+
+    Animated.timing(progress, {
+      toValue: indexQues + 1,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
   }
   useEffect(() => {
     getQuiz();
   }, []);
+
+  const updateRank = async uid => {
+    await firestore()
+      .collection('users')
+      .doc(uid)
+      .update({
+        point: point + oldPoint,
+        score: score * 10 + oldScore,
+      })
+      .then(() => {
+        console.log(point);
+      });
+  };
+  function playSound(audioLink) {
+    const sound = new Sound(audioLink, () => sound.play());
+  }
+  const fadeIn = () => {
+    // Will change fadeAnim value to 1 in 5 seconds
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 3000,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
   const validateAnswer = selectedOption => {
-    let correct_option = questions[ques]['correct_answer'];
+    // if (indexQues === questions.length - 1) {
+    //   // setShowScoreModal(true);
+    //   updateRank(user.uid);
+    // }
+
+    let correct_option = questions[indexQues]['correct_answer'];
     setCurrentOptionSelected(selectedOption);
     setCorrectOption(correct_option);
     setIsOptionsDisabled(true);
+    if (selectedOption === correct_option) {
+      // Set Score
+      playSound(audio.success);
+      setScore(score + 1);
+      fadeIn();
+
+      setPoint(point + 10);
+    } else {
+      playSound(audio.error);
+    }
+
+    console.log('score' + score * 10);
+    console.log('point' + point);
+
+    setShowNextButton(true);
   };
-
-  const renderOptions = () => {
-    return (
-      <View style={styles.answer}>
-        {option.map(op => (
-          <TouchableOpacity
-            onPress={() => validateAnswer(op)}
-            disabled={isOptionsDisabled}
-            key={op}
-            style={{
-              borderWidth: 3,
-              borderColor:
-                op == correctOption
-                  ? COLORS.success
-                  : op == currentOptionSelected
-                  ? COLORS.error
-                  : COLORS.secondary + '40',
-              backgroundColor:
-                op == correctOption
-                  ? COLORS.success + '20'
-                  : op == currentOptionSelected
-                  ? COLORS.error + '20'
-                  : COLORS.secondary + '20',
-              height: 60,
-              borderRadius: 20,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: 20,
-              marginVertical: 10,
-            }}>
-            <Text style={{fontSize: 20, color: COLORS.black}}>{op}</Text>
-
-            {/* Show Check Or Cross Icon based on correct answer*/}
-            {op == correctOption ? (
-              <View
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 30 / 2,
-                  backgroundColor: COLORS.success,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <MaterialCommunityIcons
-                  name="check"
-                  style={{
-                    color: COLORS.white,
-                    fontSize: 20,
-                  }}
-                />
-              </View>
-            ) : op == currentOptionSelected ? (
-              <View
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 30 / 2,
-                  backgroundColor: COLORS.error,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <MaterialCommunityIcons
-                  name="close"
-                  style={{
-                    color: COLORS.white,
-                    fontSize: 20,
-                  }}
-                />
-              </View>
-            ) : null}
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
-  };
-
+  Sound.setCategory('Playback', true);
+  if (loading && questions !== 'null') {
+    return <ActivityIndicator size="large" color="#00ff00" />;
+  }
   return (
     <View style={styles.container}>
-      {questions && (
-        <>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'flex-end',
-            }}>
-            <Text
-              style={{
-                fontSize: 20,
-                opacity: 0.6,
-                marginRight: 2,
-              }}>
-              {ques + 1}
-            </Text>
-            <Text style={{fontSize: 18, opacity: 0.6}}>
-              / {questions.length}
-            </Text>
-          </View>
+      <RenderProgressBar progressAnim={progressAnim(questions.length)} />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+        }}>
+        <Text
+          style={{
+            fontSize: 20,
+            opacity: 0.6,
+            marginRight: 2,
+          }}>
+          {indexQues + 1}
+        </Text>
+        <Text style={{fontSize: 18, opacity: 0.6}}>/ {questions.length}</Text>
+      </View>
 
-          <View style={styles.question}>
-            <Text style={{fontSize: 25, color: '#000000'}}>
-              {questions[ques].question}
-            </Text>
-          </View>
-          {/* <View style={styles.answer}>
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.text_while}>{option[0]}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.text_while}>{option[1]}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.text_while}>{option[2]}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.text_while}>{option[3]}</Text>
-            </TouchableOpacity>
-          </View> */}
-          {renderOptions()}
-          <View style={styles.bottom}>
-            <TouchableOpacity style={styles.action} onPress={handlePressPrev}>
-              <Text style={styles.text_while}>Prev</Text>
-            </TouchableOpacity>
+      <View style={styles.question}>
+        <Image style={styles.image} source={questions[indexQues].image} />
+        <Text style={{fontSize: 25, color: '#000000'}}>
+          {questions[indexQues].question}
+        </Text>
+        <Animated.View
+          style={[
+            styles.fadingContainer,
+            {
+              opacity: fadeAnim,
+            },
+          ]}>
+          <Text style={styles.fadingText}>score + 10 </Text>
+        </Animated.View>
+      </View>
 
-            <View style={{marginRight: 10}}>
-              <TouchableOpacity style={styles.action} onPress={handlePressNext}>
-                <Text style={styles.text_while}>Next</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </>
-      )}
+      <RenderOptions
+        option={option}
+        validateAnswer={validateAnswer}
+        isOptionsDisabled={isOptionsDisabled}
+        correctOption={correctOption}
+        currentOptionSelected={currentOptionSelected}
+        type={typeQuestion}
+      />
+      <RenderNextButton
+        showNextButton={showNextButton}
+        indexQues={indexQues}
+        questions={questions}
+        handlePressDone={handlePressDone}
+        handlePressNext={handlePressNext}
+      />
+      <Modal animationType="slide" transparent={true} visible={showScoreModal}>
+        <ModalResult
+          score={score}
+          allQuestions={questions}
+          restartQuiz={() => navigation.navigate('Home')}
+        />
+      </Modal>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    margin: 20,
-    height: '100%',
-  },
-  question: {
-    height: 200,
-  },
-  answer: {
-    flex: 1,
-  },
-  option: {
-    backgroundColor: 'gray',
-    borderRadius: 20,
-    paddingLeft: 10,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
-  },
-  text_while: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  bottom: {
-    alignContent: 'space-between',
-    justifyContent: 'space-between',
-    marginBottom: 40,
-    flexDirection: 'row',
-  },
-  action: {
-    backgroundColor: 'blue',
-    borderRadius: 10,
-    padding: 10,
-    paddingHorizontal: 20,
-  },
-});

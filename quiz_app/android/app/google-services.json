@@ -7,34 +7,34 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:299651529836:android:fb0bf40f627afcaeefec49",
+        "mobilesdk_app_id": "1:299651529836:android:5bf653c4a7bc3f7befec49",
         "android_client_info": {
           "package_name": "com.quiz_app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "299651529836-gpvde3vd9h9bqi7n7shfv9nlr2f3enua.apps.googleusercontent.com",
+          "client_id": "299651529836-amj0u45kii4899r68u3p80h71t027psu.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCVCRl6__xtcLb0tFdGJetgRjl6QuwI-H8"
+          "current_key": "AIzaSyBO8bTvUetK1aCKUz7sC0SnBfpzylWKquU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "299651529836-6ejrkg159s0ooi5dtc4ltg4dkv1afpje.apps.googleusercontent.com",
+              "client_id": "299651529836-amj0u45kii4899r68u3p80h71t027psu.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "299651529836-iamt28sb2ttqvsrljqbaji1j4oak265m.apps.googleusercontent.com",
+              "client_id": "299651529836-grn4gqi6ovgtqucp56h2nq28f8sbuvib.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "org.reactjs.native.example.brain-game"
+                "bundle_id": "org.reactjs.native.example.quiz-app"
               }
             }
           ]

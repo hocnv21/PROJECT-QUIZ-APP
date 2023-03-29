@@ -20,7 +20,6 @@ export default function Onboaring({onPress}) {
     {viewConfig, viewableItemsChanged},
   ]).current;
   const scrollTo = () => {
-    console.log(currenIndex);
     if (currenIndex < slides.length - 1) {
       setCurrenIndex(currenIndex + 1);
       // slidesRef.current.scrollToIndex({index: currenIndex + 1});

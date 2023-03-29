@@ -5,41 +5,88 @@ import CustomButton from '../../components/CustomButton';
 import TextLine from '../../components/TextLine';
 import TextUnderline from '../../components/TextUnderline';
 import Logo_Login from '../../components/Logo_Login';
+import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import styles from './style';
 
 export default function RegisterScreen({navigation}) {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [email, setEmail] = useState('viethoc123@gmail.com');
+  const [name, setName] = useState('Tran Quang Dat');
+  const [password, setPassword] = useState('112233');
+  const [passwordConfirm, setPasswordConfirm] = useState('112233');
   const [loading, setLoading] = useState(false);
   const [googleLogin, setGoogleLogin] = useState(false);
   const [user, setUser] = useState();
 
-  // const onUserRegister = async () => {
-  //   setLoading(true);
-  //   if (!email || !password || !passwordConfirm || !name) {
-  //     alert('please add all the field');
-  //     return;
-  //   }
-  //   try {
-  //     const result = await auth().createUserWithEmailAndPassword(
-  //       email,
-  //       password,
-  //     );
-  //     firestore().collection('users').doc(result.user.uid).set({
-  //       displayName: name,
-  //       email: result.user.email,
-  //       uid: result.user.uid,
-  //     });
-  //   } catch (err) {
-  //     console.log({err});
-  //     Alert.alert('Something went wrong', err.code);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const onUserRegister = async () => {
+    setLoading(true);
+    if (!email || !password || !name) {
+      alert('please add all the field');
+      return;
+    }
+
+    await auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        auth()
+          .currentUser.sendEmailVerification()
+          .then(() => {
+            setLoading(false);
+            Alert.alert(
+              'We have sent email to verify your email address and activate your account.',
+            );
+            auth()
+              .currentUser.updateProfile({
+                displayName: name,
+                photoURL: null,
+              })
+              .then(() => {
+                console.log('then update' + auth().currentUser.displayName);
+                setLoading(false);
+              });
+            firestore().collection('users').doc(auth().currentUser.uid).set({
+              displayName: name,
+              email: auth().currentUser.email,
+              photoURL: null,
+              point: 50,
+              score: 0,
+              uid: auth().currentUser.uid,
+            });
+          })
+          .catch(err => {
+            Alert.alert('err verify email:' + err.message);
+            console.log(err.message);
+          });
+      })
+      .catch(err => {
+        if (err.code === 'auth/email-already-in-use') {
+          console.log('the email address is already  in use');
+        }
+      });
+
+    setLoading(false);
+
+    // await result.user
+    //   .updateProfile({
+    //     displayName: name,
+    //     photoURL: null,
+    //   })
+    //   .then(() => {
+    //     console.log('then update' + result.user.displayName);
+    //     setLoading(false);
+    //   });
+
+    // await firestore().collection('users').doc(result.user.uid).set({
+    //   displayName: name,
+    //   email: result.user.email,
+    //   photoURL: null,
+    //   point: 50,
+    //   score: 0,
+    //   uid: result.user.uid,
+    // });
+  };
   // const loginWithGoogle = async () => {
   //   // Get the users ID token
   //   const {idToken} = await GoogleSignin.signIn();
@@ -75,6 +122,7 @@ export default function RegisterScreen({navigation}) {
             <TextInput
               placeholder="Name Profile"
               label="Full Name"
+              value={name}
               onChangeText={setName}
               style={styles.input}
               outline
@@ -83,6 +131,7 @@ export default function RegisterScreen({navigation}) {
             <TextInput
               label="Email"
               dense={true}
+              value={email}
               placeholder="email"
               onChangeText={setEmail}
               style={styles.input}
@@ -91,6 +140,7 @@ export default function RegisterScreen({navigation}) {
             <TextInput
               placeholder="Password"
               label="Password"
+              value={password}
               onChangeText={setPassword}
               secureTextEntry={true}
               style={styles.input}
@@ -99,6 +149,7 @@ export default function RegisterScreen({navigation}) {
             <TextInput
               placeholder="Confirm Password"
               label="Confirm Password"
+              value={passwordConfirm}
               onChangeText={setPasswordConfirm}
               secureTextEntry={true}
               style={styles.input}
@@ -107,7 +158,7 @@ export default function RegisterScreen({navigation}) {
               title="Register"
               type="PRIMARY"
               disabled={!email || !password || !name || !passwordConfirm}
-              // onPress={() => onUserRegister()}
+              onPress={() => onUserRegister()}
             />
             <View style={styles.haveAcc}>
               <View></View>

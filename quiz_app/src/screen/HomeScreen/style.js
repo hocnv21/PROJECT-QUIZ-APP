@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000000',
+    marginBottom: 20,
   },
 });
 export default styles;

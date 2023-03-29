@@ -3,13 +3,13 @@ import React from 'react';
 import {COLORS} from '../../contains';
 import Rank_Point_Item from './Rank_Point_Item';
 
-export default function Rank_Point() {
+export default function Rank_Point({data}) {
   const iconLeft = 'https://cdn-icons-png.flaticon.com/128/3112/3112946.png';
-  const titleLeft = 'Ranking';
-  const scoreLeft = '348';
+  const titleLeft = 'Hi-Score';
+  const scoreLeft = data?.score;
   const iconRight = 'https://cdn-icons-png.flaticon.com/128/1490/1490853.png';
   const titleRight = 'Points';
-  const scoreRight = '1200';
+  const pointRight = data?.point;
   return (
     <View style={styles.container}>
       {/** Left */}
@@ -24,7 +24,7 @@ export default function Rank_Point() {
         }}
       />
       {/**Right */}
-      <Rank_Point_Item uri={iconRight} title={titleRight} score={scoreRight} />
+      <Rank_Point_Item uri={iconRight} title={titleRight} score={pointRight} />
     </View>
   );
 }

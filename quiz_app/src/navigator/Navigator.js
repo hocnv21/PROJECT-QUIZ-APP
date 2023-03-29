@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, useColorScheme} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {
@@ -6,12 +6,18 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
 import AppContext from './AppContext';
 import LoginScreen from '../screen/LoginScreen/LoginScreen';
 import RegisterScreen from '../screen/RegisterScreen/RegisterScreen';
 import Home from '../screen/HomeScreen/Home';
 import Quiz from '../screen/QuizScreen/Quiz';
 import OnBoaringScreen from '../screen/OnboaringScreen/OnBoaringScreen';
+import AccountScreen from '../screen/AccountScreen/AccountScreen';
+import LeaderBoardScreen from '../screen/LeaderBoardScreen/LeaderBoardScreen';
+import BottomTap from '../bottomTaps/BottomTap';
+import MainView from '../screen/MainView';
 
 const Stack = createStackNavigator();
 const StackAuth = () => {
@@ -40,26 +46,34 @@ const StackHome = () => {
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
-        name="Home"
-        component={Home}
         options={{headerShown: false}}
+        name="Home"
+        component={BottomTap}
       />
+
       <Stack.Screen name="Quiz" component={Quiz} />
+      <Stack.Screen name="MainView" component={MainView} />
     </Stack.Navigator>
   );
 };
 
 const Navigator = () => {
   const scheme = useColorScheme();
-  const [user, setUser] = React.useState(null);
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState();
 
-  // function onAuthStateChanged(userlogin) {
-  //   setUser(userlogin);
-  // }
-  // useEffect(() => {
-  //   const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-  //   return subscriber; // unsubscribe on unmount
-  // }, []);
+  // Handle user state changes
+  function onAuthStateChanged(user) {
+    setUser(user);
+    if (initializing) setInitializing(false);
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  if (initializing) return null;
 
   return (
     <AppContext.Provider
@@ -69,6 +83,9 @@ const Navigator = () => {
       <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
         {/* <StatusBar barStyle="light-content" backgroundColor="green" /> */}
         <View style={{flex: 1}}>{!user ? <StackAuth /> : <StackHome />}</View>
+        {/* <View style={{flex: 1}}>
+          <StackAuth />
+        </View> */}
       </NavigationContainer>
     </AppContext.Provider>
   );

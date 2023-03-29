@@ -1,0 +1,52 @@
+loginUser{
+    "additionalUserInfo": {
+        "profile": {
+            "at_hash": "F5ETMWheMA1nZY2fkS4j_g",
+            "exp": 1679503021,
+            "azp": "299651529836-grn4gqi6ovgtqucp56h2nq28f8sbuvib.apps.googleusercontent.com",
+            "nonce": "e9UB8HHT3TAdlFajuF8bsfDpi39I-vflakTpMn-bM7A",
+            "picture": "https://lh3.googleusercontent.com/a/AGNmyxYcnynmJpK-7tIRkYpYHISpG9bwFBhJsABVE4hh=s96-c",
+            "name": "Nguyen Viet Hoc",
+            "email_verified": true,
+            "aud": "299651529836-amj0u45kii4899r68u3p80h71t027psu.apps.googleusercontent.com",
+            "family_name": "Hoc",
+            "locale": "vi",
+            "given_name": "Nguyen Viet",
+            "iss": "https://accounts.google.com",
+            "sub": "110127449071256810167",
+            "iat": 1679499421,
+            "email": "hoc.nguyenviethoc@gmail.com"
+        },
+        "username": null,
+        "providerId": "google.com",
+        "isNewUser": true
+    },
+    "user": {
+        "displayName": "Nguyen Viet Hoc",
+        "multiFactor": {
+            "enrolledFactors": []
+        },
+        "isAnonymous": false,
+        "emailVerified": true,
+        "providerData": [
+            {
+                "email": "hoc.nguyenviethoc@gmail.com",
+                "providerId": "google.com",
+                "uid": "110127449071256810167",
+                "photoURL": "https://lh3.googleusercontent.com/a/AGNmyxYcnynmJpK-7tIRkYpYHISpG9bwFBhJsABVE4hh=s96-c",
+                "displayName": "Nguyen Viet Hoc"
+            }
+        ],
+        "uid": "UXDpZTFjuqeZeO0ZpQaXXol7lV32",
+        "email": "hoc.nguyenviethoc@gmail.com",
+        "refreshToken": "APJWN8dfOO0qDYAXKnnUhgnhW-UvF32WcpYON1oGe4MRBrE0OcJEcIVdNO6Blhg-DJLiChazlQ7RJuR6caR_V46jP1YaImPnis8vy-GNYcJiXR6Wzfn6S-4gilEl5aQ1cLr1sLKdvThkUT1zZQW74oFBjhwzJa1ozeiM_tUjC9n_ApLkmq3w7i6OGklVUxl1YOyn56rwBdwQy9i-XEoxhboHYRx-d25YZ_jcVX76PUMIoVIqsE1gaVUfAXe0W7eEc8Q12Z8YWaheBIOdhbb7d88Ezp22nxiVXpON5iQLb7Kv6M-uHAODl5cLD1oAd0M_0_PW6hI3eFxc0B3tpE71C-ZYpA2HbH_SULibAdb9NX9EnN39gbmFHdbJG3qc4xABrMcYv3R9uvrTO_RlfWumGbj1jJC_IZEZUVf-VMnlowqk_DjCnlkd010",
+        "tenantId": null,
+        "phoneNumber": null,
+        "photoURL": "https://lh3.googleusercontent.com/a/AGNmyxYcnynmJpK-7tIRkYpYHISpG9bwFBhJsABVE4hh=s96-c",
+        "metadata": {
+            "creationTime": 1679499422150,
+            "lastSignInTime": 1679499422150
+        },
+        "providerId": "firebase"
+    }
+}

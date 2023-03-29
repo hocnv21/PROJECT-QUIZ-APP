@@ -1,6 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import {View, Image, Text, ScrollView, ImageBackground} from 'react-native';
 import React, {useState, useEffect} from 'react';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import {TextInput} from 'react-native-paper';
 import CustomButton from '../../components/CustomButton';
@@ -17,43 +20,47 @@ export default function LoginScreen({navigation}) {
   const [user, setUser] = useState();
   const logoLink = require('../../assets/image/logo.png');
 
-  // useEffect(() => {
-  //   GoogleSignin.configure({
-  //     webClientId:
-  //       '299651529836-gpvde3vd9h9bqi7n7shfv9nlr2f3enua.apps.googleusercontent.com',
-  //   });
-  // }, []);
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '299651529836-amj0u45kii4899r68u3p80h71t027psu.apps.googleusercontent.com',
+    });
+  }, []);
 
-  // const loginWithGoogle = async () => {
-  //   // Get the users ID token
-  //   const {idToken} = await GoogleSignin.signIn();
+  const loginWithGoogle = async () => {
+    // Get the users ID token
+    const {idToken} = await GoogleSignin.signIn();
 
-  //   // Create a Google credential with the token
-  //   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    console.log('googleCredential' + JSON.stringify(googleCredential));
 
-  //   try {
-  //     let loginUser = await auth().signInWithCredential(googleCredential);
-  //     console.log(JSON.stringify(loginUser));
-  //     setGoogleLogin(true);
-  //   } catch (error) {
-  //     setGoogleLogin(false);
-  //   }
-  // };
-  // const onHandleLogin = async () => {
-  //   if (!email || !password) {
-  //     alert('please add all the field');
-  //     return;
-  //   }
-  //   try {
-  //     const result = await auth().signInWithEmailAndPassword(email, password);
-  //     console.log(result);
-  //   } catch (err) {
-  //     alert('something went wrong');
-  //   }
-  // };
-  const onHandleLogin = () => {
-    navigation.navigate('Home');
+    try {
+      let loginUser = await auth().signInWithCredential(googleCredential);
+      console.log('loginUser' + JSON.stringify(loginUser));
+
+      setGoogleLogin(true);
+    } catch (error) {
+      console.log('err create firestore ' + error);
+      setGoogleLogin(false);
+    }
   };
+  const onHandleLogin = async () => {
+    if (!email || !password) {
+      alert('please add all the field');
+      return;
+    }
+
+    await auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        console.log('user have login :');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   const handleRegister = () => {
     navigation.navigate('Register');
   };
@@ -102,10 +109,11 @@ export default function LoginScreen({navigation}) {
               disabled={!email || !password}
               type="PRIMARY"
             />
+
             <TextLine text={'Login with'} colorLine={'black'} />
 
             <View style={styles.login_logo}>
-              <Logo_Login TYPE={'google'} />
+              <Logo_Login onPress={loginWithGoogle} TYPE={'google'} />
               <Logo_Login TYPE={'facebook'} />
             </View>
           </View>
